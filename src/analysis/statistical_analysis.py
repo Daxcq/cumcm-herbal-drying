@@ -429,7 +429,7 @@ def main():
     print("# 附件1：烘房环境温度和水分含量")
     print("#"*70)
 
-    analyzer1 = DataAnalyzer("D:/mcm-kitpip-cache/A题/附件/附件1.xlsx")
+    analyzer1 = DataAnalyzer("../../data/raw/附件1.xlsx")
 
     # 描述性统计
     stats1 = analyzer1.descriptive_stats()
@@ -476,7 +476,7 @@ def main():
     print("# 附件2：物性参数")
     print("#"*70)
 
-    analyzer2 = DataAnalyzer("D:/mcm-kitpip-cache/A题/附件/附件2.xlsx")
+    analyzer2 = DataAnalyzer("../../data/raw/附件2.xlsx")
     stats2 = analyzer2.descriptive_stats()
     stats2.to_excel(f"{output_dir}/附件2_描述性统计.xlsx", index=False)
     analyzer2.normality_test()

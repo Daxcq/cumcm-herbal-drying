@@ -1,11 +1,17 @@
 import fs from "node:fs/promises";
 import { FileBlob, SpreadsheetFile } from "@oai/artifact-tool";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
 
-const root = "D:/mcm-kitpip-cache/A题";
-const inputPath = `${root}/附件/附件1.xlsx`;
-const templatePath = `${root}/附件/附件3/result1.xlsx`;
-const outputDir = "D:/mcm-kitpip-cache/outputs/q1";
-const outputPath = `${outputDir}/result1.xlsx`;
+// 获取当前文件所在目录
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const projectRoot = join(__dirname, "..");
+
+const inputPath = join(projectRoot, "data/raw/附件1.xlsx");
+const templatePath = join(projectRoot, "data/raw/附件3/result1.xlsx");
+const outputDir = join(projectRoot, "outputs/q1");
+const outputPath = join(outputDir, "result1.xlsx");
 
 const srcBook = await SpreadsheetFile.importXlsx(await FileBlob.load(inputPath));
 const src = srcBook.worksheets.getItemAt(0).getUsedRange().values;
