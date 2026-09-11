@@ -48,6 +48,20 @@ def load_env(path="A题/附件/附件1.xlsx"):
     return t, T, C
 
 
+def C_fitted(T):
+    """
+    使用预热阶段拟合公式计算水分浓度
+    基于前130点拟合的参数（四舍五入版）
+    w = 0.0118 + 0.001318 × e^(0.067×T)
+
+    适用范围: T ∈ [28, 49.94] °C
+    """
+    a = 0.0118
+    b = 0.001318
+    c = 0.067
+    return a + b * np.exp(c * T)
+
+
 def assemble(r_node, d_node, gS):
     """
     任意（非均匀）节点位置的守恒型有限体积算子，向量化。
@@ -148,7 +162,8 @@ def run(k=1, dt=0.25, cn=True):
     t_env, T_env, C_env = load_env()
     times = np.arange(0.0, T_END + 1e-9, dt)
     T_amb = np.interp(times, t_env, T_env)
-    C_amb = np.interp(times, t_env, C_env)
+    # 使用拟合公式计算边界水分浓度（基于温度）
+    C_amb = C_fitted(T_amb)
     Vn = (R ** 2 - ((r_node[-2] + R) / 2.0) ** 2) / 2.0
     gS_T = H_T * R / (RHO * CP * Vn)
     gS_C = H_M * R / Vn

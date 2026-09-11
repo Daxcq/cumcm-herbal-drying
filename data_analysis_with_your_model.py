@@ -143,8 +143,8 @@ def main():
     try:
         popt, _ = curve_fit(your_model, t, C, p0=[C[-1], C[0]-C[-1], -0.001], maxfev=50000)
         C_pred = your_model(t, *popt)
-        metrics_C['标准指数（优化参数）'] = calculate_metrics(C, C_pred)
-        metrics_C['标准指数（优化参数）']['params'] = popt
+        models_C['标准指数（优化参数）'] = calculate_metrics(C, C_pred)
+        models_C['标准指数（优化参数）']['params'] = popt
     except:
         pass
 
@@ -152,9 +152,9 @@ def main():
     try:
         popt, _ = curve_fit(logistic_model, t, C, p0=[0.05, 1.5, 0.0006], maxfev=50000)
         C_pred = logistic_model(t, *popt)
-        metrics_C['Logistic模型'] = calculate_metrics(C, C_pred)
-        metrics_C['Logistic模型']['params'] = popt
-        metrics_C['Logistic模型']['y_pred'] = C_pred
+        models_C['Logistic模型'] = calculate_metrics(C, C_pred)
+        models_C['Logistic模型']['params'] = popt
+        models_C['Logistic模型']['y_pred'] = C_pred
     except:
         pass
 
@@ -162,9 +162,9 @@ def main():
     try:
         popt, _ = curve_fit(neg_exp_model, t, C, p0=[0.05, 0.03, 0.0004], maxfev=50000)
         C_pred = neg_exp_model(t, *popt)
-        metrics_C['负指数模型'] = calculate_metrics(C, C_pred)
-        metrics_C['负指数模型']['params'] = popt
-        metrics_C['负指数模型']['y_pred'] = C_pred
+        models_C['负指数模型'] = calculate_metrics(C, C_pred)
+        models_C['负指数模型']['params'] = popt
+        models_C['负指数模型']['y_pred'] = C_pred
     except:
         pass
 
@@ -172,9 +172,9 @@ def main():
     try:
         popt, _ = curve_fit(poly3_model, t, C, maxfev=50000)
         C_pred = poly3_model(t, *popt)
-        metrics_C['三次多项式'] = calculate_metrics(C, C_pred)
-        metrics_C['三次多项式']['params'] = popt
-        metrics_C['三次多项式']['y_pred'] = C_pred
+        models_C['三次多项式'] = calculate_metrics(C, C_pred)
+        models_C['三次多项式']['params'] = popt
+        models_C['三次多项式']['y_pred'] = C_pred
     except:
         pass
 
