@@ -4,53 +4,39 @@ __pycache__/
 *$py.class
 *.so
 .Python
-env/
-venv/
-ENV/
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
 *.egg-info/
-.installed.cfg
-*.egg
+dist/
+build/
 
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# 数据文件
-*.npz
-*.npy
-
-# Excel临时文件
-~$*.xlsx
-*.tmp
-
-# 输出文件（太大）
-outputs/*/
-!outputs/.gitkeep
+# Environments
+.env
+venv/
+env/
+ENV/
 
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
-*~
 
-# 操作系统
+# Project specific
+.mimosa/
+http-v2/
+selfcheck/
+node_modules/
+A题/
+
+# Output files (keep structure, ignore content)
+outputs/**/*.png
+outputs/**/*.xlsx
+outputs/**/*.csv
+
+# OS
 .DS_Store
 Thumbs.db
-desktop.ini
+*.tmp
 
-# 临时文件
-*.log
-*.bak
-*.cache
+# Office temp files
+~$*.xlsx
+~$*.docx
