@@ -9,10 +9,13 @@
 import matplotlib
 matplotlib.use('Agg')
 
+import io
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+from pathlib import Path
 from scipy import stats
 from scipy.optimize import curve_fit
 import openpyxl
@@ -25,6 +28,9 @@ plt.rcParams['axes.unicode_minus'] = False
 sns.set_style("whitegrid")
 sns.set_palette("husl")
 
+# 仓库根目录（src/analysis/ 向上两级），所有数据与输出路径均以此为锚点
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+
 
 def load_data(use_preheat_only=True):
     """加载附件1数据
@@ -32,7 +38,7 @@ def load_data(use_preheat_only=True):
     Args:
         use_preheat_only: 如果为True，只使用前130个数据点（预热阶段）
     """
-    wb = openpyxl.load_workbook("../../data/raw/附件1.xlsx", data_only=True)
+    wb = openpyxl.load_workbook(str(_REPO_ROOT / "data" / "raw" / "附件1.xlsx"), data_only=True)
     ws = wb.active
     rows = [r for r in ws.iter_rows(min_row=2, values_only=True) if r[0] is not None]
 
@@ -120,9 +126,8 @@ def main():
     print(f"  温度范围: {T.min():.2f} - {T.max():.2f} °C")
     print(f"  水分范围: {C.min():.6f} - {C.max():.6f} kg/kg")
 
-    import os
-    output_dir = "../../outputs/analysis/moisture_vs_temperature"
-    os.makedirs(output_dir, exist_ok=True)
+    output_dir = _REPO_ROOT / "outputs" / "analysis" / "moisture_vs_temperature"
+    output_dir.mkdir(parents=True, exist_ok=True)
 
     # ========== 你们的模型（预热阶段子集参数） ==========
     print("\n" + "="*70)
@@ -457,8 +462,9 @@ def main():
     print(f"✓ 所有分析完成！结果已保存到: {output_dir}")
     print("="*70)
 
-    # 生成总结报告
-    with open(f"{output_dir}/分析总结.txt", "w", encoding="utf-8") as f:
+    # 生成总结报告（路径由 _REPO_ROOT 锚定；先写入内存缓冲再落盘）
+    report_path = (output_dir / "分析总结.txt").resolve()
+    with io.StringIO() as f:
         f.write("="*70 + "\n")
         f.write("水分浓度 vs 温度 拟合分析总结（预热阶段130点）\n")
         f.write("="*70 + "\n\n")
@@ -481,6 +487,7 @@ def main():
         f.write(f"【模型排名】\n")
         for idx, row in df_comp.iterrows():
             f.write(f"{idx+1}. {row['模型']}: R²={row['R²']:.6f}\n")
+        report_path.write_text(f.getvalue(), encoding="utf-8")
 
     print(f"✓ 已保存: {output_dir}/分析总结.txt")
 

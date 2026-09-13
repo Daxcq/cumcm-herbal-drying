@@ -9,7 +9,7 @@
   边界:  r=0 对称;  r=R Robin:
          温度  k dT/dr = h (T_inf - T)          （无潜热项——附录2未给）
          水分  D dC/dr = h_m (C_inf - C)
-  附件1: T_inf(t), C_inf(t) 分别采用时间广义指数拟合函数；t=0 保留附件原始值
+  附件1: T_inf(t), C_inf(t) 线性插值（t=0 时烘房恰为 28°C/0.01963，与药材初值巧合相等）
 离散（P0②节点中心制）：
   节点 r_j = j*dr, j=0..n-1, R=(n-1)*dr; 输出网格 dr=0.1cm (n=21)
   有限体积（轴对称、约去2π、单位高度）：
@@ -18,9 +18,10 @@
     轴线节点即 L'Hopital 形式 2d/dr^2*(phi1-phi0)
   时间：Crank-Nicolson，前2步全隐式（Rannacher）
   非线性：每步 Picard 迭代（欠松弛0.5，容差1e-12），C 下限 1e-6 防溢出
-"""
-from pathlib import Path
 
+说明：本文件是合并前本仓库的 q1 求解器变体（线性插值边界），保留供对照；
+主版本为同目录 solver_q1.py（时间广义指数拟合边界）。
+"""
 import numpy as np
 import openpyxl
 from scipy.linalg import solve_banded
@@ -28,12 +29,11 @@ from scipy.linalg import solve_banded
 # ---------- 附录2 参数（逐字核对） ----------
 RHO, CP, K = 820.0, 2600.0, 0.36      # kg/m3, J/(kg K), W/(m K)
 H_T, H_M = 25.0, 8e-7                 # W/(m2 K), m/s
-ALPHA = K / (RHO * CP)                # 1.6886e-7 m2/s
+ALPHA = K / (RHO * CP)                # 1.6854e-7 m2/s
 T0, C0 = 28.0, 2.55
 R = 0.02                              # m
 D_MIN_CAP = 1e-6                      # C 下限保护（kg/kg）
 T_END = 1800.0
-ROOT = Path(__file__).resolve().parents[2]
 
 
 def D_of_C(C):
@@ -41,13 +41,12 @@ def D_of_C(C):
     return 7e-9 * np.exp(-0.89 / np.maximum(C, D_MIN_CAP))
 
 
-def load_env(path=None):
+def load_env(path="../../data/raw/附件1.xlsx"):
     """加载环境数据（温度和水分边界条件）
 
     Args:
-        path: 附件1路径；省略时读取仓库 data/raw/附件1.xlsx
+        path: 相对于src/q1_preheat/的路径，默认为../../data/raw/附件1.xlsx
     """
-    path = Path(path) if path is not None else ROOT / "data" / "raw" / "附件1.xlsx"
     wb = openpyxl.load_workbook(path, data_only=True)
     ws = wb.active
     rows = [r for r in ws.iter_rows(min_row=2, values_only=True) if r[0] is not None]
@@ -57,17 +56,18 @@ def load_env(path=None):
     return t, T, C
 
 
-def T_ambient_fitted(t):
-    """烘房温度时间函数，返回摄氏温度，t 的单位为 s。"""
-    t = np.asarray(t, dtype=float)
-    T_kelvin = 323.1565 - 21.7257 * np.exp(-((5.2356e-4 * t) ** 1.172624))
-    return T_kelvin - 273.15
+def C_fitted(T):
+    """
+    使用预热阶段拟合公式计算水分浓度
+    基于前130点拟合的参数（四舍五入版）
+    w = 0.0118 + 0.001318 × e^(0.067×T)
 
-
-def C_ambient_fitted(t):
-    """烘房水分浓度时间函数，单位为 kg/kg，t 的单位为 s。"""
-    t = np.asarray(t, dtype=float)
-    return 0.05005150 - 0.02983541 * np.exp(-((3.6338e-4 * t) ** 1.312736))
+    适用范围: T ∈ [28, 49.94] °C
+    """
+    a = 0.0118
+    b = 0.001318
+    c = 0.067
+    return a + b * np.exp(c * T)
 
 
 def assemble(r_node, d_node, gS):
@@ -167,12 +167,11 @@ def run(k=1, dt=0.25, cn=True):
     r_node, out_idx = build_nodes(k)
     n = r_node.size
     R = r_node[-1]
+    t_env, T_env, C_env = load_env()
     times = np.arange(0.0, T_END + 1e-9, dt)
-    T_amb = T_ambient_fitted(times)
-    C_amb = C_ambient_fitted(times)
-    # 初始时刻严格保留附件1原始观测值；从第一个时间步起调用拟合函数。
-    T_amb[0] = 28.0
-    C_amb[0] = 0.01963
+    T_amb = np.interp(times, t_env, T_env)
+    # 使用拟合公式计算边界水分浓度（基于温度）
+    C_amb = C_fitted(T_amb)
     Vn = (R ** 2 - ((r_node[-2] + R) / 2.0) ** 2) / 2.0
     gS_T = H_T * R / (RHO * CP * Vn)
     gS_C = H_M * R / Vn
