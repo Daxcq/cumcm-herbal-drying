@@ -1,0 +1,48 @@
+{
+  "mass_balance": {
+    "problem2": {
+      "initial_inventory": 0.00051,
+      "total_loss": 0.00023370075472079382,
+      "final_relative_residual": 0.0005761686676935958,
+      "maximum_relative_residual": 0.0024709338475701675
+    },
+    "problem3": {
+      "initial_inventory": 0.00051,
+      "total_loss": 0.0004853607847112801,
+      "final_relative_residual": 0.00037410344789819274,
+      "maximum_relative_residual": 0.001094075989090513
+    }
+  },
+  "plateau_noise": {
+    "temperature_mean_c": 49.96850413223141,
+    "temperature_sd_c": 0.16476660887282057,
+    "moisture_mean": 0.04986520661157024,
+    "moisture_sd": 0.0002924297612919317
+  },
+  "sensitivity": [
+    {
+      "case": "有利延拓",
+      "temperature_offset_c": 0.4942998266184617,
+      "moisture_offset": -0.0008772892838757951,
+      "drying_time_s": 203870.09995117717,
+      "drying_time_h": 56.63058331977143,
+      "relative_change": -0.015717550550971696
+    },
+    {
+      "case": "基准延拓",
+      "temperature_offset_c": 0.0,
+      "moisture_offset": 0.0,
+      "drying_time_s": 207125.60715198924,
+      "drying_time_h": 57.53489087555257,
+      "relative_change": 0.0
+    },
+    {
+      "case": "不利延拓",
+      "temperature_offset_c": -0.4942998266184617,
+      "moisture_offset": 0.0008772892838757951,
+      "drying_time_s": 210458.47119074131,
+      "drying_time_h": 58.46068644187259,
+      "relative_change": 0.016091028456497927
+    }
+  ]
+}
