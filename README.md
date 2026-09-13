@@ -56,3 +56,14 @@ python scripts/run_q3_audits.py
 - `result4.xlsx`：每60 s输出一次干基含水率剖面，并给出实际半径和表面值；固定物理坐标落到收缩后药材外部时保留为空白。
 
 原始附件与最终提交文件须以竞赛组委会要求为准。本仓库仅用于本队建模过程的复现与核验。
+
+
+## 已上传结果的还原
+
+由于 GitHub 单文件传输限制，`outputs/q2/result2.xlsx` 以五个无损分片保存。克隆仓库后执行：
+
+```bash
+python scripts/assemble_result2.py
+```
+
+脚本会自动生成原始 Excel 文件并进行 SHA-256 校验。其余三个结果文件可直接位于 `outputs/` 对应目录中。
